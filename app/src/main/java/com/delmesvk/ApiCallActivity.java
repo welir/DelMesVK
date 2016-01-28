@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -166,6 +167,9 @@ public class ApiCallActivity extends ActionBarActivity {
 //			Collections.reverse(messagesList);
 //			Collections.reverse(senderList);
 //			Collections.reverse(ImageUrlList);
+
+			fragment.listView.setItemAnimator(new DefaultItemAnimator());
+
 			fragment.listView.setAdapter(mAdapter);
 		}
 	}

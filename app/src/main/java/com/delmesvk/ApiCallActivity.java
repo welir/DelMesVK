@@ -4,12 +4,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
-public class ApiCallActivity extends ActionBarActivity {
+public class ApiCallActivity extends AppCompatActivity{
 
     private VKRequest myRequest;
 	RecyclerView.Adapter mAdapter;
@@ -44,7 +45,6 @@ public class ApiCallActivity extends ActionBarActivity {
         setContentView(R.layout.activity_api_call);
 
 		if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment(), FRAGMENT_TAG)
@@ -53,7 +53,13 @@ public class ApiCallActivity extends ActionBarActivity {
 		}
 	}
 
-    private PlaceholderFragment getFragment() {
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_main, menu);
+		return true;
+	}
+
+	private PlaceholderFragment getFragment() {
         return (PlaceholderFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
     }
     private void processRequestIfRequired() {
@@ -102,11 +108,8 @@ public class ApiCallActivity extends ActionBarActivity {
 
         fragment.listView.setLayoutManager(mLayoutManager);
 
-		final ArrayList<String> messagesList = new ArrayList<String>();
-		final ArrayList<String> senderList = new ArrayList<String>();
-		final ArrayList<String> ImageUrlList = new ArrayList<String>();
+		MessegeItem mItem = new MessegeItem();
 
-		mAdapter = new RecyclerViewAdapter(messagesList,senderList,ImageUrlList);
 
 
 
@@ -126,15 +129,15 @@ public class ApiCallActivity extends ActionBarActivity {
 
 						 Date d1 = new Date(i.date * 1000);
 						 SimpleDateFormat format1 = new SimpleDateFormat("dd.MM.yyyy hh:mm");
-				   	 	 messagesList.add(index, i.body);
-						 senderList.add(index, u.first_name + " " + u.last_name + " " + format1.format(d1));
-						 ImageUrlList.add(index, u.getPhoto_100());
+						 mItem.messagesList.add(index, i.body);
+						 mItem.senderList.add(index, u.first_name + " " + u.last_name + " " + format1.format(d1));
+						 mItem.ImageUrlList.add(index, u.getPhoto_100());
 						 index++;
 				   	 }
 				   }
 					else
-						{	messagesList.add(index,  i.body);
-							senderList.add(index,"" );
+						{	mItem.messagesList.add(index,  i.body);
+							mItem.senderList.add(index,"" );
 							index++;
 						}
 
@@ -150,15 +153,15 @@ public class ApiCallActivity extends ActionBarActivity {
 								Date d2 = new Date(i.message.date * 1000);
 								SimpleDateFormat format2 = new SimpleDateFormat("dd.MM.yyyy hh:mm");
 
-								messagesList.add(index, i.message.body);
-								senderList.add(index, u.first_name + " " + u.last_name + " " + format2.format(d2) );
-								ImageUrlList.add(index, u.getPhoto_100());
+								mItem.messagesList.add(index, i.message.body);
+								mItem.senderList.add(index, u.first_name + " " + u.last_name + " " + format2.format(d2) );
+								mItem.ImageUrlList.add(index, u.getPhoto_100());
 								index++;
 							}
 						}
 					else
-					{	messagesList.add(index,  i.message.body);
-						senderList.add(index,"" );
+					{	mItem.messagesList.add(index,  i.message.body);
+						mItem.senderList.add(index,"" );
 						index++;
 					}
 				}
@@ -168,8 +171,8 @@ public class ApiCallActivity extends ActionBarActivity {
 //			Collections.reverse(senderList);
 //			Collections.reverse(ImageUrlList);
 
-			fragment.listView.setItemAnimator(new DefaultItemAnimator());
 
+			mAdapter = new RecyclerViewAdapter(mItem);
 			fragment.listView.setAdapter(mAdapter);
 		}
 	}

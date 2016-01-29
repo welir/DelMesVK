@@ -2,30 +2,32 @@
     android:id="@+id/llCardBack"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#201b18"
+    android:background="#ffffff"
     android:animateLayoutChanges="true"
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:weightSum="1"
-    android:scrollIndicators="end">
+    android:scrollIndicators="end"
+    android:divider="#e60808">
 
     <TextView
         android:id="@+id/tvSubTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2d2a2a"
+        android:background="#ffffff"
         android:text="My subtitle..."
-        android:textColor="#ccbd61"
+        android:textColor="#303030"
         android:textSize="12sp"
         android:padding="4dp" />
-
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:weightSum="1"
-        android:layout_gravity="top">
+        android:weightSum="1">
 
         <ImageView
             android:layout_width="59dp"
@@ -38,19 +40,16 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:padding="10dp"
-            android:background="#383535"
+            android:background="#ffffff"
             android:text="This is a long title to show wrapping of text in the view."
-            android:textColor="@android:color/white"
+            android:textColor="#8d8d8d"
             android:textSize="16sp"
             android:gravity="left"
-            android:autoText="true" />
+            android:autoText="false" />
 
     </LinearLayout>
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#a69696"
-        android:layout_weight="0.01" />
-
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
 </LinearLayout>

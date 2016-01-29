@@ -32,9 +32,7 @@ import java.util.ArrayList;
  */
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-    private ArrayList<String> mDataset;
-    private ArrayList<String> mSenderDataset;
-    private ArrayList<String> mImageUrlDataset;
+    private MessegeItem Itemfragment = new MessegeItem();
 
     private MultiSelector  selector  =  new MultiSelector();
 
@@ -97,10 +95,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public RecyclerViewAdapter(ArrayList<String> myDataset, ArrayList<String> senderDataset, ArrayList<String> imgUrlDataset) {
-        mDataset = myDataset;
-        mSenderDataset = senderDataset;
-        mImageUrlDataset = imgUrlDataset;
+    public RecyclerViewAdapter(MessegeItem mItem) {
+        Itemfragment = mItem;
+//        int j = 0;
+//
+//        for (String i : Itemfragment.ImageUrlList) {
+//            new DownloadImageTask(tempImage)
+//                    .execute(i);
+//            if (tempImage != null){
+//                Itemfragment.ImageList.add(tempImage);
+//                tempImage = null;
+//            }
+//        }
     }
 
 //    private boolean tryMoveSelection(RecyclerView.LayoutManager lm, int direction) {
@@ -152,6 +158,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 //        View view = v.findViewById(R.id.tv_recycler_item);
 //        v.removeView(view);
         ViewHolder vh = new ViewHolder(v);
+
+
+
         return vh;
     }
 
@@ -160,11 +169,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.mTextView.setText(mDataset.get(position));
-        holder.SenderTextView.setText(mSenderDataset.get(position));
+        holder.mTextView.setText(Itemfragment.messagesList.get(position));
+        holder.SenderTextView.setText(Itemfragment.senderList.get(position));
+
         new DownloadImageTask(holder.mImageView)
-                .execute(mImageUrlDataset.get(position));
-         holder.itemView.setActivated(mSelectedPositions.get(position, false));
+                .execute(Itemfragment.ImageUrlList.get(position));
+
+        holder.itemView.setActivated(mSelectedPositions.get(position, false));
        // holder.itemView.sele
 //        holder.itemView.setSelected(focusedItem == position);
     }
@@ -172,7 +183,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mDataset.size();
+        return Itemfragment.messagesList.size();
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {

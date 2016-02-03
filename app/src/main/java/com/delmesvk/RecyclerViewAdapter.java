@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
@@ -23,6 +26,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bignerdranch.android.multiselector.MultiSelector;
+import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -32,12 +41,12 @@ import java.util.ArrayList;
  */
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-    private MessegeItem Itemfragment = new MessegeItem();
+    private static MessegeItem Itemfragment = new MessegeItem();
 
-    private MultiSelector  selector  =  new MultiSelector();
+    private static MultiSelector  selector  =  new MultiSelector();
 
     private int focusedItem = 0;
-    private static SparseBooleanArray mSelectedPositions = new SparseBooleanArray();
+    public static SparseBooleanArray mSelectedPositions = new SparseBooleanArray();
 
     private static boolean mIsSelectable = false;
 
@@ -70,6 +79,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public CheckBox cb;
         public ViewHolder(View v) {
             super(v);
+
+
             SenderTextView = (TextView) v.findViewById(R.id.tvSubTitle);
             mTextView =(TextView) v.findViewById(R.id.tvTitle);
             mImageView = (ImageView) v.findViewById(R.id.imageView2);
@@ -77,18 +88,37 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             v.setClickable(true);
             itemView.setOnClickListener(this);
             itemView.setClickable(true);
+            Bitmap bmp = BitmapFactory.decodeResource(v.getContext().getResources(), R.drawable.ic_ab_app);
+
+            for (int i = 0 ;  (i < Itemfragment.ImageUrlList.size()); i++)
+            {
+
+                Itemfragment.ImageList.add(i, bmp);
+            }
+
+            for (int i = 0 ;  (i < Itemfragment.ImageUrlList.size()); i++)
+            {
+                new DownloadImageTask(Itemfragment.ImageList.get(i))
+                        .execute(Itemfragment.ImageUrlList.get(i));
+            }
 
         }
 
 
         @Override
         public void onClick(View v) {
-            itemView.setSelected(true);
-            itemView.setFocusable(true);
-            setItemChecked(getPosition(), itemView.isSelected());
 
-
-
+            if (itemView.isSelected()){
+                mTextView.setBackgroundColor(Color.WHITE) ;
+                setItemChecked(getPosition(),false);
+                itemView.setSelected(false);
+            }
+            else
+            {
+                mTextView.setBackgroundColor(Color.argb(255,212,254,255));
+                setItemChecked(getPosition(),true);
+                itemView.setSelected(true);
+            }
 
         }
     }
@@ -97,56 +127,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     // Provide a suitable constructor (depends on the kind of dataset)
     public RecyclerViewAdapter(MessegeItem mItem) {
         Itemfragment = mItem;
-//        int j = 0;
-//
-//        for (String i : Itemfragment.ImageUrlList) {
-//            new DownloadImageTask(tempImage)
-//                    .execute(i);
-//            if (tempImage != null){
-//                Itemfragment.ImageList.add(tempImage);
-//                tempImage = null;
-//            }
-//        }
+
     }
 
-//    private boolean tryMoveSelection(RecyclerView.LayoutManager lm, int direction) {
-//        int tryFocusItem = focusedItem + direction;
-//
-//        // If still within valid bounds, move the selection, notify to redraw, and scroll
-//        if (tryFocusItem >= 0 && tryFocusItem < getItemCount()) {
-//            notifyItemChanged(focusedItem);
-//            focusedItem = tryFocusItem;
-//            notifyItemChanged(focusedItem);
-//            lm.scrollToPosition(focusedItem);
-//            return true;
-//        }
-//
-//        return false;
-//    }
-//
-//    @Override
-//    public void onAttachedToRecyclerView(final RecyclerView recyclerView) {
-//        super.onAttachedToRecyclerView(recyclerView);
-//
-//        // Handle key up and key down and attempt to move selection
-//        recyclerView.setOnKeyListener(new View.OnKeyListener() {
-//            @Override
-//            public boolean onKey(View v, int keyCode, KeyEvent event) {
-//                RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
-//
-//                // Return false if scrolled to the bounds and allow focus to move off the list
-//                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-//                    if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-//                        return tryMoveSelection(lm, 1);
-//                    } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-//                        return tryMoveSelection(lm, -1);
-//                    }
-//                }
-//
-//                return false;
-//            }
-//        });
-//    }
+
     // Create new views (invoked by the layout manager)
     @Override
     public RecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
@@ -172,10 +156,24 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         holder.mTextView.setText(Itemfragment.messagesList.get(position));
         holder.SenderTextView.setText(Itemfragment.senderList.get(position));
 
-        new DownloadImageTask(holder.mImageView)
-                .execute(Itemfragment.ImageUrlList.get(position));
+//        new DownloadImageTask(holder.mImageView)
+//                .execute(Itemfragment.ImageUrlList.get(position));
 
-        holder.itemView.setActivated(mSelectedPositions.get(position, false));
+        //holder.mImageView.setImageBitmap(Itemfragment.ImageList.get(position));
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        int fallback = 0;
+        DisplayImageOptions options = new DisplayImageOptions.Builder().cacheInMemory(true)
+                .cacheOnDisc(true).resetViewBeforeLoading(true)
+                .showImageForEmptyUri(fallback)
+                .showImageOnFail(fallback)
+                .showImageOnLoading(fallback).build();
+
+//initialize image view
+
+
+//download and display image from url
+        imageLoader.displayImage(Itemfragment.ImageUrlList.get(position), holder.mImageView, options);
+
        // holder.itemView.sele
 //        holder.itemView.setSelected(focusedItem == position);
     }
@@ -186,10 +184,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return Itemfragment.messagesList.size();
     }
 
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
+    private static class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        Bitmap bmImage;
 
-        public DownloadImageTask(ImageView bmImage) {
+        public DownloadImageTask(Bitmap bmImage) {
             this.bmImage = bmImage;
         }
 
@@ -207,7 +205,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         protected void onPostExecute(Bitmap result) {
-            bmImage.setImageBitmap(result);
+            bmImage = result;
         }
     }
 }

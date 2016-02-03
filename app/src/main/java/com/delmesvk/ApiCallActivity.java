@@ -1,20 +1,28 @@
 package com.delmesvk;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Toast;
 
+import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKRequest;
@@ -22,12 +30,7 @@ import com.vk.sdk.api.VKRequest.VKRequestListener;
 import com.vk.sdk.api.VKResponse;
 import com.vk.sdk.api.model.*;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 
 public class ApiCallActivity extends AppCompatActivity{
@@ -42,13 +45,55 @@ public class ApiCallActivity extends AppCompatActivity{
 
 
 
-        setContentView(R.layout.activity_api_call);
+		setContentView(R.layout.activity_api_call);
 
-		if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+				.cacheOnDisc(true).cacheInMemory(true)
+				.imageScaleType(ImageScaleType.EXACTLY)
+				.displayer(new FadeInBitmapDisplayer(300)).build();
+
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
+				getApplicationContext())
+				.defaultDisplayImageOptions(defaultOptions)
+				.memoryCache(new WeakMemoryCache())
+				.discCacheSize(100 * 1024 * 1024).build();
+
+		ImageLoader.getInstance().init(config);
+
+
+
+		int fallback = 0;
+		DisplayImageOptions options = new DisplayImageOptions.Builder().cacheInMemory(true)
+				.cacheOnDisc(true).resetViewBeforeLoading(true)
+				.showImageForEmptyUri(fallback)
+				.showImageOnFail(fallback)
+				.showImageOnLoading(fallback).build();
+//		if (getSupportActionBar() != null) {
+//
+//			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//			getSupportActionBar().setDisplayUseLogoEnabled(true);
+//			getSupportActionBar().setDisplayShowCustomEnabled(true);
+//			getSupportActionBar().setDisplayShowTitleEnabled(false);
+//		}
+
+		Toolbar myToolbar;
+		myToolbar = (Toolbar) findViewById(R.id.app_toolbar);
+		setTitle("DDIT_Results");
+
+		setSupportActionBar(myToolbar);
+		getSupportActionBar().setDisplayShowTitleEnabled(true);
+		getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayUseLogoEnabled(true);
+		getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayShowHomeEnabled(true);
+
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment(), FRAGMENT_TAG)
 					.commit();
+//			getSupportFragmentManager().beginTransaction()
+//					.add(R.id.app_toolbar, new PlaceholderFragment(), FRAGMENT_TAG)
+//					.commit();
 			processRequestIfRequired();
 		}
 	}
@@ -59,6 +104,27 @@ public class ApiCallActivity extends AppCompatActivity{
 		return true;
 	}
 
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+									ContextMenu.ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu_main, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+			case R.id.action_refresh:
+
+				Toast.makeText(this, "sdfgsdgf", Toast.LENGTH_LONG).show();
+				return true;
+
+			default:
+				return super.onContextItemSelected(item);
+		}
+	}
 	private PlaceholderFragment getFragment() {
         return (PlaceholderFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
     }
@@ -108,9 +174,18 @@ public class ApiCallActivity extends AppCompatActivity{
 
         fragment.listView.setLayoutManager(mLayoutManager);
 
+		registerForContextMenu(fragment.listView);
+
 		MessegeItem mItem = new MessegeItem();
 
 
+		Toolbar myToolbar;
+		myToolbar = (Toolbar) findViewById(R.id.app_toolbar);
+		setTitle("DDIT_Results");
+
+	    setSupportActionBar(myToolbar);
+		getSupportActionBar().setDisplayUseLogoEnabled(true);
+		getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
 
 
 
@@ -236,7 +311,7 @@ public class ApiCallActivity extends AppCompatActivity{
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			View v = inflater.inflate(R.layout.fragment_api_call, container, false);
 			listView = (RecyclerView) v.findViewById(R.id.response);
-
+			registerForContextMenu(listView);
 			return v;
 		}
 	}
